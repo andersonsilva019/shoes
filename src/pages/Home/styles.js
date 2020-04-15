@@ -38,7 +38,7 @@ export const ProductList = styled.ul `
       border-radius: 4px;
       overflow: hidden;
       margin-top: auto; /* Importante quando o texto é muito grande */
-      
+      border: 0;
       display: flex;
       align-items: center;
       transition: background 0.2s;

@@ -1,90 +1,54 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { MdAddShoppingCart } from 'react-icons/md';
+
+import api  from '../../services/api';
+import { formatPrice } from '../../util/format'
 
 import { ProductList } from './styles'
 
-export default function Cart(){
-  return (
-    <ProductList>
-      <li>
-        <img src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x" alt="Tenis"/>
-        
-        <strong>Tênis muito bacana</strong>
-        <span>R$ 129,90</span>
+export default class Home extends Component {
 
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#FFF"/> 3
-          </div>
+  state = {
+    products: [],
+  }
 
-          <span>Adicionar ao carrinho</span>
-        </button>
-      </li>
+  /* Pegando os dados da api */
+  async componentDidMount(){
+    const response = await api.get('products');
 
-      <li>
-        <img src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x" alt="Tenis"/>
-        <strong>Tênis muito bacana</strong>
-        <span>R$ 129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff"/> 3
-          </div>
+    
+    /* Carregando o componente com a formatação */
+    const data = response.data.map(product => ({
+      ...product,
+      priceFormatted: formatPrice(product.price),
+    }))
 
-          <span>Adicionar ao carrinho</span>
-        </button>
-      </li>
+    this.setState({ products: data});
+  }
 
-      <li>
-        <img src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x" alt="Tenis"/>
-        <strong>Tênis muito bacana</strong>
-        <span>R$ 129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff"/> 3
-          </div>
+  render(){
 
-          <span>Adicionar ao carrinho</span>
-        </button>
-      </li>
+    const { products } = this.state;
 
-      <li>
-        <img src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x" alt="Tenis"/>
-        <strong>Tênis muito bacana</strong>
-        <span>R$ 129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff"/> 3
-          </div>
-
-          <span>Adicionar ao carrinho</span>
-        </button>
-      </li>
-
-      <li>
-        <img src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x" alt="Tenis"/>
-        <strong>Tênis muito bacana</strong>
-        <span>R$ 129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff"/> 3
-          </div>
-
-          <span>Adicionar ao carrinho</span>
-        </button>
-      </li>
-
-      <li>
-        <img src="https://static.netshoes.com.br/produtos/tenis-de-caminhada-leve-confortavel/06/E74-0492-006/E74-0492-006_zoom2.jpg?ts=1579006188&ims=326x" alt="Tenis"/>
-        <strong>Tênis muito bacana</strong>
-        <span>R$ 129,90</span>
-        <button type="button">
-          <div>
-            <MdAddShoppingCart size={16} color="#fff"/> 3
-          </div>
-
-          <span>Adicionar ao carrinho</span>
-        </button>
-      </li>
-    </ProductList>
-  );
+    return (
+      <ProductList>
+        {products.map(product => (
+          <li key={product.id}>
+            <img src={product.image} alt={product.title}/>
+            
+            <strong>{product.title}</strong>
+            <span>{product.priceFormatted}</span>
+    
+            <button type="button">
+              <div>
+                <MdAddShoppingCart size={16} color="#FFF"/> 3
+              </div>
+    
+              <span>Adicionar ao carrinho</span>
+            </button>
+          </li>
+        ))}
+      </ProductList>
+    );
+  }
 }
