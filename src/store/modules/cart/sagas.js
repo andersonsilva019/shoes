@@ -2,7 +2,7 @@ import { call, put, all, takeLatest, select } from 'redux-saga/effects'
 import { toast } from 'react-toastify'
 import api from '../../../services/api'
 import { formatPrice } from '../../../util/format'
-import { addToCartSucess, updateAmount } from './actions'
+import { addToCartSucess, updateAmountSucess } from './actions'
 
 /* É como se fosse um async mais potente */
 /* Essa funcão é responsavel por acessar a API e 
@@ -26,7 +26,7 @@ function* addToCart({ id }) {
   }
 
   if(productExists){
-    yield put(updateAmount(id, amount))
+    yield put(updateAmountSucess(id, amount))
   }else{
 
     const response = yield call(api.get, `/products/${id}`);
@@ -43,6 +43,30 @@ function* addToCart({ id }) {
 
 }
 
+function* updateAmount ({ id, amount}){
+  if(amount <= 0 ) return;
+
+  /* Serve para buscar um produto */
+  /* const product = yield select(state => 
+    state.cart.find(p => p.id == id)
+  ) */
+  
+  /* Pegando a quantidade em estoque */
+  const stock = yield call(api.get, `stock/${id}`);
+
+  const stockAmount = stock.data.amount;
+
+  if( amount > stockAmount ) {
+    toast.error('Quantidade solicitada fora do estoque');
+    return;
+  }
+
+  /* Caso tudo deu certo... */
+  yield put(updateAmountSucess(id, amount));
+
+}
+
 export default all([
-  takeLatest('@cart/ADD_REQUEST', addToCart)
+  takeLatest('@cart/ADD_REQUEST', addToCart),
+  takeLatest('@cart/UPDATE_AMOUNT_REQUEST', updateAmount)
 ]);
