@@ -1,14 +1,35 @@
-import { call, put, all, takeLatest } from 'redux-saga/effects'
+import { call, put, all, takeLatest, select } from 'redux-saga/effects'
 import api from '../../../services/api'
-import { addToCartSucess } from './actions'
+import { formatPrice } from '../../../util/format'
+import { addToCartSucess, updateAmount } from './actions'
 
 /* É como se fosse um async mais potente */
 /* Essa funcão é responsavel por acessar a API e 
 buscar informações mais detalhadas do produto */
 function* addToCart({ id }) {
-  const response = yield  call(api.get, `/products/${id}`);
 
-  yield put(addToCartSucess(response.data))
+  const productExists = yield select(
+    state => state.cart.find(p => p.id === id),
+  )
+  
+  if(productExists){
+
+    const amount = productExists.amount + 1;
+
+    yield put(updateAmount(id, amount))
+  }else{
+
+    const response = yield call(api.get, `/products/${id}`);
+  
+    const data = {
+      ...response.data,
+      amount: 1,
+      priceFormatted: formatPrice(response.data.price)
+    }
+  
+    yield put(addToCartSucess(data))
+  }
+
 
 }
 
